@@ -148,10 +148,13 @@
             cursor: pointer;
         }
         .lock-icon {
-            font-size: 48px;
             color: var(--accent-color-2);
             opacity: 0.8;
         }
+        .card.is-read .lock-icon {
+            color: #adb5bd; /* Gray out when read */
+        }
+
         .private-text {
             font-weight: 600;
             margin-top: 10px;
@@ -204,15 +207,25 @@
         .privacy-options input[type="radio"] { margin-left: 10px; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1001; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
         .modal-overlay.show { opacity: 1; visibility: visible; }
-        .modal-content { color: var(--text-color); background: white; padding: 30px; border-radius: 10px; text-align: center; width: 90%; max-width: 350px; border: 1px solid var(--border-color); transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-content { color: var(--text-color); background: white; padding: 30px; border-radius: 10px; text-align: right; width: 90%; max-width: 500px; border: 1px solid var(--border-color); transform: scale(0.9); transition: transform 0.3s ease; }
         .modal-overlay.show .modal-content { transform: scale(1); }
-        .modal-content h3 { margin-top: 0; }
+        .modal-content h3 { margin-top: 0; text-align: center; }
         #password-input { width: 100%; padding: 10px; text-align: center; background: #f1f3f5; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; margin-bottom: 15px; box-sizing: border-box; }
+        .modal-buttons { margin-top: 20px; text-align: center;}
         .modal-buttons button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 0 5px; font-weight: 600; }
         #confirm-action-btn { background-color: var(--accent-color-2); color: white; }
         #cancel-action-btn { background-color: #ced4da; color: #495057; }
         #notification-area { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; }
         .notification { background-color: #343a40; color: white; padding: 12px 25px; border-radius: 8px; margin-top: 10px; opacity: 0; transition: all 0.5s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .revealed-message-body {
+            max-height: 50vh;
+            overflow-y: auto;
+            text-align: right;
+            line-height: 1.8;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+
     </style>
 </head>
 <body>
@@ -293,8 +306,9 @@
     <div id="action-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="modal-title">تأكيد الإجراء</h3>
-            <p id="modal-text">لإتمام هذا الإجراء، الرجاء إدخال كلمة المرور.</p>
-            <input type="password" id="password-input" placeholder="كلمة المرور">
+            <div id="modal-body">
+                <!-- Content will be injected by JS -->
+            </div>
             <div class="modal-buttons">
                 <button id="confirm-action-btn">تأكيد</button>
                 <button id="cancel-action-btn">إلغاء</button>
@@ -333,8 +347,7 @@
         const notificationArea = document.getElementById('notification-area');
         const modal = document.getElementById('action-modal');
         const modalTitle = document.getElementById('modal-title');
-        const modalText = document.getElementById('modal-text');
-        const passwordInput = document.getElementById('password-input');
+        const modalBody = document.getElementById('modal-body');
         const confirmActionBtn = document.getElementById('confirm-action-btn');
         const cancelActionBtn = document.getElementById('cancel-action-btn');
         const formPanel = document.getElementById('form-panel');
@@ -351,9 +364,12 @@
         // --- Masonry Layout Logic ---
         function resizeGridItem(item){
             const grid = document.querySelector(".wall-container");
+            if (!grid) return; 
             const rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
             const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('gap'));
-            const contentHeight = item.querySelector('.card-content-wrapper').getBoundingClientRect().height;
+            const contentWrapper = item.querySelector('.card-content-wrapper');
+            if (!contentWrapper) return; 
+            const contentHeight = contentWrapper.getBoundingClientRect().height;
             const rowSpan = Math.ceil((contentHeight + rowGap * 2) / (rowHeight + rowGap));
             item.style.gridRowEnd = "span "+rowSpan;
         }
@@ -366,7 +382,7 @@
         
         // --- Helper to create Card Element ---
         function createCardElement(docId, noteData) {
-            const { message, author, isPublic } = noteData;
+            const { message, author, isPublic, isRead } = noteData;
 
             const card = document.createElement('div');
             card.className = 'card';
@@ -374,13 +390,16 @@
 
             const contentWrapper = document.createElement('div');
             contentWrapper.className = 'card-content-wrapper';
-
+            
             if (isPublic) {
                 contentWrapper.innerHTML = `<p class="card-message">"${message}"</p>`;
-            } else {
+            } else { 
+                const readIcon = isRead ? '💌' : '❤️';
+                if (isRead) card.classList.add('is-read');
+
                 contentWrapper.innerHTML = `
                     <div class="card-private-content">
-                        <div class="lock-icon">❤️</div>
+                        <div class="lock-icon">${readIcon}</div>
                         <p class="private-text">رسالة خاصة لك</p>
                     </div>
                 `;
@@ -399,7 +418,6 @@
             card.appendChild(deleteBtn);
             card.appendChild(contentWrapper);
             
-            // NEW: Conditionally add author element
             if (author && author.trim() !== '') {
                 const authorP = document.createElement('p');
                 authorP.className = 'card-author';
@@ -420,6 +438,14 @@
                     const cardElement = createCardElement(doc.id, noteData);
                     wallContainer.prepend(cardElement);
                     resizeGridItem(cardElement);
+                }
+                if (change.type === "modified") {
+                     const cardToUpdate = document.querySelector(`.card[data-id="${doc.id}"]`);
+                     if (cardToUpdate) {
+                         const newCard = createCardElement(doc.id, noteData);
+                         cardToUpdate.replaceWith(newCard);
+                         resizeGridItem(newCard);
+                     }
                 }
                 if (change.type === "removed") {
                     const cardToRemove = document.querySelector(`.card[data-id="${doc.id}"]`);
@@ -445,9 +471,10 @@
 
              if (!message) { showNotification('من فضلك اكتب رسالة أولاً.', true); return; }
              db.collection('notes').add({
-                author: name, // Save name as is (can be empty string)
+                author: name,
                 message: message,
                 isPublic: privacy === 'public',
+                isRead: false,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 showNotification('تم تعليق رسالتك بنجاح!');
@@ -461,50 +488,55 @@
             currentAction = action;
             actionTargetId = docId;
 
-            if (action === 'delete') {
-                modalTitle.textContent = 'تأكيد الحذف';
-                modalText.textContent = 'لحذف هذه الرسالة، الرجاء إدخال كلمة المرور.';
-                confirmActionBtn.textContent = 'حذف';
-                confirmActionBtn.style.backgroundColor = '#ef4444';
-            } else if (action === 'reveal') {
-                modalTitle.textContent = 'كشف الرسالة الخاصة';
-                modalText.textContent = 'لكشف محتوى هذه الرسالة، الرجاء إدخال كلمة المرور.';
-                confirmActionBtn.textContent = 'كشف';
-                confirmActionBtn.style.backgroundColor = 'var(--accent-color-2)';
-            }
+            // Always show password prompt first for delete/reveal
+            modalTitle.textContent = action === 'delete' ? 'تأكيد الحذف' : 'كشف الرسالة الخاصة';
+            modalBody.innerHTML = `
+                <p id="modal-text">لإتمام هذا الإجراء، الرجاء إدخال كلمة المرور.</p>
+                <input type="password" id="password-input" placeholder="كلمة المرور">
+            `;
+            confirmActionBtn.textContent = 'تأكيد';
+            confirmActionBtn.style.display = 'inline-block';
+            cancelActionBtn.textContent = 'إلغاء';
             
             modal.classList.add('show');
-            passwordInput.focus();
+            document.getElementById('password-input').focus();
         }
 
         cancelActionBtn.addEventListener('click', () => modal.classList.remove('show'));
         
-        confirmActionBtn.addEventListener('click', () => {
-            if (passwordInput.value !== ADMIN_PASSWORD) {
+        async function handleConfirm() {
+            const passwordInput = document.getElementById('password-input');
+            if (passwordInput && passwordInput.value !== ADMIN_PASSWORD) {
                 showNotification('كلمة المرور غير صحيحة.', true);
                 passwordInput.value = '';
                 return;
             }
 
-            if (currentAction === 'delete') {
-                db.collection('notes').doc(actionTargetId).delete()
-                  .then(() => showNotification('تم حذف الرسالة.'))
-                  .catch(err => showNotification('خطأ في الحذف.', true));
-            } else if (currentAction === 'reveal') {
-                db.collection('notes').doc(actionTargetId).get().then(doc => {
-                    if (doc.exists) {
-                        const cardToReveal = document.querySelector(`.card[data-id="${actionTargetId}"]`);
-                        const contentWrapper = cardToReveal.querySelector('.card-content-wrapper');
-                        contentWrapper.innerHTML = `<p class="card-message">"${doc.data().message}"</p>`;
-                        resizeGridItem(cardToReveal); // Resize after revealing content
-                        showNotification('تم كشف الرسالة.');
-                    }
-                });
-            }
+            const noteRef = db.collection('notes').doc(actionTargetId);
 
-            modal.classList.remove('show');
-            passwordInput.value = '';
-        });
+            if (currentAction === 'delete') {
+                await noteRef.delete();
+                showNotification('تم حذف الرسالة.');
+                modal.classList.remove('show');
+            } else if (currentAction === 'reveal') {
+                const doc = await noteRef.get();
+                if (doc.exists) {
+                    const noteData = doc.data();
+                    modalTitle.textContent = `رسالة من ${noteData.author || 'مجهول'}`;
+                    modalBody.innerHTML = `<div class="revealed-message-body">"${noteData.message}"</div>`;
+                    
+                    // Change buttons
+                    confirmActionBtn.style.display = 'none';
+                    cancelActionBtn.textContent = 'إغلاق';
+
+                    if (!noteData.isRead) {
+                        await noteRef.update({ isRead: true });
+                    }
+                }
+            }
+        }
+        
+        confirmActionBtn.addEventListener('click', handleConfirm);
         
         // --- Notification Function ---
         function showNotification(message, isError = false) {
@@ -519,6 +551,7 @@
                 setTimeout(() => { notification.remove(); }, 500);
             }, 3000);
         }
+
     </script>
 
 </body>
