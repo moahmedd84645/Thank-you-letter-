@@ -8,46 +8,288 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>/* الكود الكامل هنا */</style>
+    
+    <style>
+        :root {
+            --bg-main: #f8f9fa;
+            --text-color: #343a40;
+            --author-color: #6c757d;
+            --border-color: #dee2e6;
+            --accent-color-1: #ffc107; /* Yellow */
+            --accent-color-2: #fd7e14; /* Orange */
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-color);
+            margin: 0;
+            overflow-y: auto;
+        }
+        
+        .page-wrapper {
+            padding: 40px 20px;
+        }
+        
+        /* Main message from you */
+        .main-letter {
+            max-width: 800px;
+            margin: 0 auto 60px auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .main-letter h1 {
+            font-size: 2.8em;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        .main-letter p {
+            font-size: 1.25em;
+            line-height: 1.9;
+            color: #495057;
+            font-weight: 400;
+            margin-bottom: 20px;
+        }
+        .main-letter hr {
+            border: 0;
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 30px auto;
+            width: 80%;
+        }
+        .main-letter .call-to-action {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--accent-color-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+         .main-letter .signature {
+            font-size: 1.2em;
+            font-weight: 400;
+            margin-top: 40px;
+            margin-bottom: 0;
+            color: var(--author-color);
+        }
+        .main-letter .signature strong {
+            display: block;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        /* Wall container using CSS Grid for Masonry effect */
+        .wall-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-auto-rows: 10px;
+            gap: 25px;
+            padding: 0 10px;
+        }
+        
+        .card {
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 5px 15px var(--shadow-color);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Different card colors */
+        .card:nth-child(4n+1) { background-color: #fffde7; } /* Light Yellow */
+        .card:nth-child(4n+2) { background-color: #e0f7fa; } /* Light Cyan */
+        .card:nth-child(4n+3) { background-color: #fce4ec; } /* Light Pink */
+        .card:nth-child(4n+4) { background-color: #e8f5e9; } /* Light Green */
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card:hover {
+            transform: translateY(-5px) rotate(1deg);
+            box-shadow: 0 12px 25px var(--shadow-color);
+        }
+        
+        /* Public card message */
+        .card-message {
+            font-size: 1.1em;
+            font-weight: 400;
+            margin: 0 0 20px 0;
+            flex-grow: 1;
+            line-height: 1.7;
+            color: #212529;
+            white-space: pre-wrap; /* To respect new lines */
+        }
+
+        /* Private card content */
+        .card-private-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+        .lock-icon {
+            font-size: 48px;
+            color: var(--accent-color-2);
+            opacity: 0.8;
+        }
+        .private-text {
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .card-author {
+            font-size: 0.95em;
+            color: var(--author-color);
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+            margin-top: 20px;
+            text-align: left;
+            font-weight: 400;
+        }
+
+        .delete-card-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 50%;
+            color: #6c757d;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card:hover .delete-card-btn { opacity: 1; }
+        .delete-card-btn:hover { background: #ef4444; color: white; }
+        
+        /* Shared styles for Panel, Modal, etc. */
+        .form-panel, .modal-overlay, #notification-area, #open-form-btn { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+        .form-panel { position: fixed; top: 0; right: 0; width: 100%; max-width: 420px; height: 100vh; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); border-left: 1px solid var(--border-color); z-index: 10; transform: translateX(100%); transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); display: flex; flex-direction: column; padding: 25px; box-sizing: border-box; color: var(--text-color); }
+        .form-panel.show { transform: translateX(0); }
+        .form-panel h1 { font-size: 2em; text-align: center; }
+        #open-form-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--accent-color-2); color: white; border: none; border-radius: 50%; font-size: 36px; line-height: 60px; text-align: center; cursor: pointer; z-index: 5; box-shadow: 0 5px 20px rgba(253, 126, 20, 0.4); }
+        #close-form-btn { position: absolute; top: 15px; left: 15px; background: transparent; border: none; color: #6c757d; font-size: 28px; cursor: pointer; }
+        #gratitude-form { flex-grow: 1; display: flex; flex-direction: column; }
+        #gratitude-form textarea, #gratitude-form input { background: #f8f9fa; color: var(--text-color); border: 1px solid var(--border-color); }
+        #gratitude-form input, #gratitude-form textarea { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; box-sizing: border-box; font-size: 1em; }
+        #gratitude-form button[type="submit"] { width: 100%; padding: 12px; background: var(--accent-color-2); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1em; font-weight: bold; margin-top: auto; }
+        .privacy-options { margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; }
+        .privacy-options legend { padding: 0 10px; font-weight: 600; }
+        .privacy-options div { display: flex; align-items: center; margin: 10px 0; }
+        .privacy-options input[type="radio"] { margin-left: 10px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; justify-content: center; align-items: center; z-index: 1001; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-overlay.show { opacity: 1; visibility: visible; }
+        .modal-content { color: var(--text-color); background: white; padding: 30px; border-radius: 10px; text-align: center; width: 90%; max-width: 350px; border: 1px solid var(--border-color); transform: scale(0.9); transition: transform 0.3s ease; }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+        .modal-content h3 { margin-top: 0; }
+        #password-input { width: 100%; padding: 10px; text-align: center; background: #f1f3f5; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; margin-bottom: 15px; box-sizing: border-box; }
+        .modal-buttons button { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; margin: 0 5px; font-weight: 600; }
+        #confirm-action-btn { background-color: var(--accent-color-2); color: white; }
+        #cancel-action-btn { background-color: #ced4da; color: #495057; }
+        #notification-area { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; }
+        .notification { background-color: #343a40; color: white; padding: 12px 25px; border-radius: 8px; margin-top: 10px; opacity: 0; transition: all 0.5s; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    </style>
 </head>
 <body>
+
     <div class="page-wrapper">
+        <!-- Your Main Message -->
         <div class="main-letter">
             <h1>إزيكم يا جماعة...</h1>
-            <p>بكتب الرسالة دي وأنا لسه طالع من آخر امتحان...</p>
-            <p>أنا مكنتش أعرف الكل، وده طبيعي، بس الجميل بجد إن ناس كتير عرفتني...</p>
-            <p>السنة دي خلتني أكتشف قد إيه الناس الحلوة حوالينا بتصنع الفرق...</p>
-            <p>اللي فات مش نهاية… دي كانت أول سنة من مشوار عمره 4 سنين...</p>
-            <p class="signature">أخوكم،<br><strong>محمد</strong></p>
+            <p>
+                بكتب الرسالة دي وأنا لسه طالع من آخر امتحان، ولسه فيا نفس من السنة دي اللي عدّت، بس والله حاسس إنها كانت أكتر من مجرد سنة دراسة.
+                أول سنة في الكلية دي كانت بالنسبة لي رحلة، فيها كل حاجة: توتر وضغط، ضحك من القلب، سهر على مشاريع، قلق من امتحانات، وناس كبرت جوا قلبي حتى لو ما اتكلمناش كتير.
+            </p>
+            <p>
+                أنا مكنتش أعرف الكل، وده طبيعي، بس الجميل بجد إن ناس كتير عرفتني، وناس أكتر شجعتني، وقالولي كلام فرق معايا أكتر مما تتخيلوا…
+                كلمة "شد حيلك"، ضحكة على سهوة، نظرة دعم، أو حتى سلام بسيط في الممر… كل ده كان بيخليني أكمل وأنا مبسوط.
+            </p>
+            <p>
+                السنة دي خلتني أكتشف قد إيه الناس الحلوة حوالينا بتصنع الفرق.
+                مش لازم نكون صحاب يوميًّا، بس كفاية الإحساس إننا "مع بعض". في مواقف كتير مش هتتنسي…
+                ضحكنا فيها بجد، وعيطنا من التعب، وقولنا "هو احنا بنعمل كده ليه؟" وبعدين كملنا، وكأن كل حاجة ماشية بنعمة ربنا، ووجودنا حوالين بعض.
+            </p>
+             <p>
+                اللي فات مش نهاية… دي كانت أول سنة من مشوار عمره 4 سنين، ولسه الحكاية بتبدأ، ولسه قدامنا كتير هنعيشه سوا. أنا مش بكتب عشان أقول إني كنت مختلف، ولا علشان أتكلم عن نفسي… أنا بكتب عشان أقول: "شكرًا ليكم"… شكرًا لكل ضحكة، وكل موقف، وكل دعم، وكل لحظة حسيت فيها إننا مش لوحدنا.
+            </p>
+             <p>
+                أنا مبسوط إني كنت جزء من الدفعة دي، وفخور بكل واحد فيكم.
+            </p>
+            <hr>
+            <p class="call-to-action">
+                <strong>📩 طب وإنت؟</strong>
+            </p>
+            <p>
+                لو وصلت لآخر الكلام ده… اكتبلي كلمة من اللي جواك. احكيلي عن لحظة فرّقت معاك، أو موقف مش هتنساه، أو حد عايز تشكره. إحنا بنكمل ببعض… والكلام الحلو عمره ما بيروح ❤
+            </p>
+            <p class="signature">
+                أخوكم،<br><strong>محمد</strong>
+            </p>
         </div>
-        <div class="wall-container" id="wall-container"></div>
+
+        <!-- The Wall of Messages -->
+        <div class="wall-container" id="wall-container">
+            <!-- Cards will be inserted here by JavaScript -->
+        </div>
     </div>
 
+    <!-- UI: Floating button to open panel -->
     <button id="open-form-btn" title="أضف رسالة">+</button>
-
+    
+    <!-- UI: Slide-in Panel -->
     <div id="form-panel" class="form-panel">
-        <button id="close-form-btn" title="إغلاق">X</button>
+        <button id="close-form-btn" title="إغلاق">&times;</button>
         <header>
             <h1>شارك بكلمة حلوة</h1>
         </header>
         <main>
             <form id="gratitude-form">
                 <input type="text" id="name" placeholder="اسمك (اختياري)">
-                <div class="textarea-toolbar">
-                    <button type="button" class="emoji-btn" id="emoji-btn">😀</button>
-                </div>
                 <textarea id="message" rows="10" placeholder="اكتب رسالة شكر أو ذكرى جميلة..." required></textarea>
-                <emoji-picker></emoji-picker>
+                
                 <fieldset class="privacy-options">
                     <legend>خيار العرض</legend>
-                    <div><input type="radio" id="public" name="privacy" value="public" checked><label for="public">عرض للجميع</label></div>
-                    <div><input type="radio" id="private" name="privacy" value="private"><label for="private">رسالة خاصة لك</label></div>
+                    <div>
+                        <input type="radio" id="public" name="privacy" value="public" checked>
+                        <label for="public">عرض للجميع</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="private" name="privacy" value="private">
+                        <label for="private">رسالة خاصة لك</label>
+                    </div>
                 </fieldset>
+
                 <button type="submit">علّق رسالتك</button>
             </form>
         </main>
     </div>
 
+    <!-- Universal Action Modal -->
     <div id="action-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 id="modal-title">تأكيد الإجراء</h3>
@@ -60,14 +302,18 @@
         </div>
     </div>
 
+    <!-- Notification Area -->
     <div id="notification-area"></div>
 
+    <!-- Dependencies -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
 
     <script>
+        // --- ADMIN CONFIGURATION ---
         const ADMIN_PASSWORD = 'delete2024';
+
+        // --- Firebase Configuration ---
         const firebaseConfig = {
             apiKey: "AIzaSyC0t2n854hE32yrc7mnxYSpsX3QTkjGtqk",
             authDomain: "gratitude-wall-e4183.firebaseapp.com",
@@ -79,34 +325,201 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // باقي الأكواد من التعامل مع النموذج، الريسايز، الإنشاء، الحذف، والكشف...
-        // مدموجة كلها في سكريبت واحد من اللي عندك
-
-        // مثال: إرسال النموذج
+        // --- UI Elements ---
+        const wallContainer = document.getElementById('wall-container');
         const form = document.getElementById('gratitude-form');
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('name').value.trim();
-            const message = document.getElementById('message').value.trim();
-            const privacy = document.querySelector('input[name="privacy"]:checked').value;
+        const nameInput = document.getElementById('name');
+        const messageInput = document.getElementById('message');
+        const notificationArea = document.getElementById('notification-area');
+        const modal = document.getElementById('action-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalText = document.getElementById('modal-text');
+        const passwordInput = document.getElementById('password-input');
+        const confirmActionBtn = document.getElementById('confirm-action-btn');
+        const cancelActionBtn = document.getElementById('cancel-action-btn');
+        const formPanel = document.getElementById('form-panel');
+        const openFormBtn = document.getElementById('open-form-btn');
+        const closeFormBtn = document.getElementById('close-form-btn');
+        
+        let actionTargetId = null;
+        let currentAction = null; // 'delete' or 'reveal'
 
-            if (!message) {
-                alert("من فضلك اكتب رسالة");
-                return;
+        // --- Form Panel Logic ---
+        openFormBtn.addEventListener('click', () => formPanel.classList.add('show'));
+        closeFormBtn.addEventListener('click', () => formPanel.classList.remove('show'));
+
+        // --- Masonry Layout Logic ---
+        function resizeGridItem(item){
+            const grid = document.querySelector(".wall-container");
+            const rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
+            const rowGap = parseInt(window.getComputedStyle(grid).getPropertyValue('gap'));
+            const contentHeight = item.querySelector('.card-content-wrapper').getBoundingClientRect().height;
+            const rowSpan = Math.ceil((contentHeight + rowGap * 2) / (rowHeight + rowGap));
+            item.style.gridRowEnd = "span "+rowSpan;
+        }
+
+        function resizeAllGridItems(){
+            const allItems = document.querySelectorAll(".card");
+            allItems.forEach(resizeGridItem);
+        }
+        window.addEventListener("resize", resizeAllGridItems);
+        
+        // --- Helper to create Card Element ---
+        function createCardElement(docId, noteData) {
+            const { message, author, isPublic } = noteData;
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.id = docId;
+
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'card-content-wrapper';
+
+            if (isPublic) {
+                contentWrapper.innerHTML = `<p class="card-message">"${message}"</p>`;
+            } else {
+                contentWrapper.innerHTML = `
+                    <div class="card-private-content">
+                        <div class="lock-icon">❤️</div>
+                        <p class="private-text">رسالة خاصة لك</p>
+                    </div>
+                `;
+                contentWrapper.querySelector('.card-private-content').addEventListener('click', () => openModal('reveal', docId));
+            }
+            
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-card-btn';
+            deleteBtn.innerHTML = '&times;';
+            deleteBtn.title = 'حذف الرسالة';
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openModal('delete', docId);
+            });
+            
+            card.appendChild(deleteBtn);
+            card.appendChild(contentWrapper);
+            
+            // NEW: Conditionally add author element
+            if (author && author.trim() !== '') {
+                const authorP = document.createElement('p');
+                authorP.className = 'card-author';
+                authorP.textContent = `- ${author}`;
+                card.appendChild(authorP);
             }
 
-            db.collection('notes').add({
-                author: name,
+            return card;
+        }
+        
+        // --- Firebase Logic to build the wall ---
+        db.collection('notes').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(change => {
+                const doc = change.doc;
+                const noteData = doc.data();
+
+                if (change.type === "added") {
+                    const cardElement = createCardElement(doc.id, noteData);
+                    wallContainer.prepend(cardElement);
+                    resizeGridItem(cardElement);
+                }
+                if (change.type === "removed") {
+                    const cardToRemove = document.querySelector(`.card[data-id="${doc.id}"]`);
+                    if(cardToRemove) {
+                        cardToRemove.style.transition = 'opacity 0.5s, transform 0.5s';
+                        cardToRemove.style.opacity = '0';
+                        cardToRemove.style.transform = 'scale(0.8)';
+                        setTimeout(() => {
+                            cardToRemove.remove();
+                            resizeAllGridItems();
+                        }, 500);
+                    }
+                }
+            });
+        });
+
+        // --- Form Submission ---
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+             const name = nameInput.value.trim();
+             const message = messageInput.value.trim();
+             const privacy = document.querySelector('input[name="privacy"]:checked').value;
+
+             if (!message) { showNotification('من فضلك اكتب رسالة أولاً.', true); return; }
+             db.collection('notes').add({
+                author: name, // Save name as is (can be empty string)
                 message: message,
                 isPublic: privacy === 'public',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
-                alert("تم الإرسال بنجاح");
-                form.reset();
-            }).catch((err) => alert("حدث خطأ"));
+                showNotification('تم تعليق رسالتك بنجاح!');
+                nameInput.value = ''; messageInput.value = '';
+                formPanel.classList.remove('show');
+            }).catch(err => showNotification('حدث خطأ.', true));
         });
 
-        // وهكذا باقي السكريبت من كود الجدار التفاعلي
+        // --- Universal Modal Logic ---
+        function openModal(action, docId) {
+            currentAction = action;
+            actionTargetId = docId;
+
+            if (action === 'delete') {
+                modalTitle.textContent = 'تأكيد الحذف';
+                modalText.textContent = 'لحذف هذه الرسالة، الرجاء إدخال كلمة المرور.';
+                confirmActionBtn.textContent = 'حذف';
+                confirmActionBtn.style.backgroundColor = '#ef4444';
+            } else if (action === 'reveal') {
+                modalTitle.textContent = 'كشف الرسالة الخاصة';
+                modalText.textContent = 'لكشف محتوى هذه الرسالة، الرجاء إدخال كلمة المرور.';
+                confirmActionBtn.textContent = 'كشف';
+                confirmActionBtn.style.backgroundColor = 'var(--accent-color-2)';
+            }
+            
+            modal.classList.add('show');
+            passwordInput.focus();
+        }
+
+        cancelActionBtn.addEventListener('click', () => modal.classList.remove('show'));
+        
+        confirmActionBtn.addEventListener('click', () => {
+            if (passwordInput.value !== ADMIN_PASSWORD) {
+                showNotification('كلمة المرور غير صحيحة.', true);
+                passwordInput.value = '';
+                return;
+            }
+
+            if (currentAction === 'delete') {
+                db.collection('notes').doc(actionTargetId).delete()
+                  .then(() => showNotification('تم حذف الرسالة.'))
+                  .catch(err => showNotification('خطأ في الحذف.', true));
+            } else if (currentAction === 'reveal') {
+                db.collection('notes').doc(actionTargetId).get().then(doc => {
+                    if (doc.exists) {
+                        const cardToReveal = document.querySelector(`.card[data-id="${actionTargetId}"]`);
+                        const contentWrapper = cardToReveal.querySelector('.card-content-wrapper');
+                        contentWrapper.innerHTML = `<p class="card-message">"${doc.data().message}"</p>`;
+                        resizeGridItem(cardToReveal); // Resize after revealing content
+                        showNotification('تم كشف الرسالة.');
+                    }
+                });
+            }
+
+            modal.classList.remove('show');
+            passwordInput.value = '';
+        });
+        
+        // --- Notification Function ---
+        function showNotification(message, isError = false) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            if (isError) { notification.style.backgroundColor = '#ef4444'; }
+            notificationArea.appendChild(notification);
+            setTimeout(() => { notification.classList.add('show'); }, 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => { notification.remove(); }, 500);
+            }, 3000);
+        }
     </script>
+
 </body>
 </html>
